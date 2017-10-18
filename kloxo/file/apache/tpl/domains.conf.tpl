@@ -609,7 +609,7 @@ foreach ($certnamelist as $ip => $certname) {
 					if ($statsapp === 'awstats') {
 ?>
 		Options +ExecCGI
-		<FilesMatch \.(cgi|pl)$>
+		<FilesMatch \.(cgi|pl|py)$>
 			#<IfModule !mod_fastcgi.c>
 				<IfModule mod_suphp.c>
 					SuPhp_UserGroup apache apache
@@ -663,6 +663,9 @@ foreach ($certnamelist as $ip => $certname) {
 	SetEnvIf X-Forwarded-Proto https HTTPS=1
 
 	ServerName webmail.<?=$domainname;?>
+
+
+	ServerAlias mail.<?=$domainname;?>
 
 
 	Include "<?=$acmechallenge_conf;?>"
@@ -730,6 +733,9 @@ foreach ($certnamelist as $ip => $certname) {
 	SetEnvIf X-Forwarded-Proto https HTTPS=1
 
 	ServerName webmail.<?=$domainname;?>
+
+
+	ServerAlias mail.<?=$domainname;?>
 
 
 	Include "<?=$acmechallenge_conf;?>"
@@ -1128,7 +1134,7 @@ foreach ($certnamelist as $ip => $certname) {
 			if ($enablecgi) {
 ?>
 		Options +ExecCGI
-		<FilesMatch \.(cgi|pl)$>
+		<FilesMatch \.(cgi|pl|py)$>
 			#<IfModule !mod_fastcgi.c>
 				<IfModule mod_suphp.c>
 					SuPhp_UserGroup <?=$sockuser;?> <?=$sockuser;?>
@@ -1345,6 +1351,9 @@ foreach ($certnamelist as $ip => $certname) {
 	ServerName webmail.<?=$parkdomainname;?>
 
 
+	ServerAlias mail.<?=$parkdomainname;?>
+
+
 	Include "<?=$acmechallenge_conf;?>"
 
 	DocumentRoot "<?=$webmaildocroot;?>"
@@ -1524,6 +1533,9 @@ foreach ($certnamelist as $ip => $certname) {
 	SetEnvIf X-Forwarded-Proto https HTTPS=1
 
 	ServerName webmail.<?=$redirdomainname;?>
+
+
+	ServerAlias mail.<?=$redirdomainname;?>
 
 
 	Include "<?=$acmechallenge_conf;?>"

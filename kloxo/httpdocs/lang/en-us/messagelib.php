@@ -858,7 +858,7 @@ $__information['domain_updateform_changeowner_pre'] = "<p>No information...</p>"
 
 $__information['mailforward_list__pre'] = "<p>No information...</p>";
 
-$__information['mailforward_addform_forward_pre'] = "<p>No information...</p>";
+$__information['mailforward_addform_forward_pre'] = "<p>If want to piping to php, set like '| lxphp.exe /path/to/file.php' to 'Forward To'. By default, to mail address (like account@domain.com)</p>";
 
 $__information['mailforward_addform_alias_pre'] = "<p>No information...</p>";
 
@@ -935,15 +935,15 @@ $__information['updateform_webbasics_pre'] =
 	"<p>Click 'Enable Directory Index' if want listing directories.</p>" .
 	"<p>Attention:" .
 		"<ul>" .
-			"<li>If using 'authorize' SSL (like Let's Encrypt SSL), browser automatically redirect to https</li>" .
+			"<li>If using 'authorize' SSL (like Let's Encrypt SSL), browser may redirect to https automatically</li>" .
 		"</ul>" .
 	"</p>";
 
 $__information['updateform_webfeatures_pre'] =
-	"<p>In web proxy (like Nginx-proxy), select 'back-end' in 'Web Selected' mean execute php in back side (Apache). " .
-	"Otherwise, select 'front-end' mean execute php in front side (like Nginx).</p>" .
+	"<p>In web proxy (like Nginx-proxy), select 'back-end' in 'Web Selected' mean execute php in back side (Apache) under Nginx-proxy. " .
+	"Otherwise, select 'front-end' mean execute php in front side (Nginx) under pure Nginx.</p>" .
 	"<p>If enable 'multiple php', possible select php for website under 'Php Selected'. " .
-	"Select '--Default--' mean use php where declare in 'Php Used' under 'Webserver Configure'.</p>" .
+	"Select '--Php Used--' mean use php where declare in 'Php Used' under 'Webserver Configure'.</p>" .
 	"<p>Set 'Timeout' (in seconds) to modified 'idle timeout' for php process.</p>" .
 	"<p>Set 'Microcache Time' (in seconds) to implement microcache for nginx or hiawatha.</p>" .
 	"<p>Use 'General Header' and 'HTTPS Header' default value for securing website in 'medium' level.</p>";
@@ -955,6 +955,7 @@ $__information['phpmodule_list__pre'] = "<p>Click 'enable' ('+' sign) to enable 
 	"<p>Otherwise, enabled for disable module will be change '*.nonini' to '*_used.ini' (example: 'dba.nonini' to 'dba_used.nonini').</p>";
 
 $__information['sendmailban_addform__pre'] = "<p>Add 'Target' directory to ban PHP's sendmail.</p>" .
-	"<p>If select '/' that mean ban all sendmails from all domains under this client.</p>";
+	"<p>If select '/' that mean ban all sendmails from all domains under this client.</p>" .
+	"<p>Under 'admin', enable 'As Absolute Path' if want absolute path. Example: '/home' will be convert to '/home' instead '/home/admin/home'";
 
 

@@ -4,9 +4,9 @@ include_once "lib/html/include.php";
 
 initProgram('admin');
 
-$kloxo_file_path = $sgbl->__path_program_root . "/file/ssl";
+$kloxo_file_path = "{$sgbl->__path_program_root}/file/ssl";
 $kloxo_ssl_path = "/home/kloxo/ssl";
-$kloxo_etc_path = $sgbl->__path_program_root . "/etc";
+$kloxo_etc_path = "{$sgbl->__path_program_root}/etc";
 
 $login->loadAllObjects('ipaddress');
 $ilist = $login->getList('ipaddress');
@@ -50,9 +50,12 @@ $pureftp_path="/etc/pki/pure-ftpd";
 if (file_exists("{$pureftp_path}/pure-ftpd.pem")) {
 	if (!file_exists("{$pureftp_path}/pure-ftpd.pem.old")) {
 		exec("'mv' -f {$pureftp_path}/pure-ftpd.pem {$pureftp_path}/pure-ftpd.pem.old");
+	} else {
+		exec("'rm' -f {$pureftp_path}/pure-ftpd.pem.old");
+		exec("'mv' -f {$pureftp_path}/pure-ftpd.pem {$pureftp_path}/pure-ftpd.pem.old");
 	}
 
-	exec("'cp' -f {$kloxo_file_path}/default.pem {$pureftp_path}/pure-ftpd.pem");
+	exec("ln -sf {$kloxo_etc_path}/program.pem {$pureftp_path}/pure-ftpd.pem");
 }
 
 if ((!is_link("{$kloxo_etc_path}/program.pem")) ||
@@ -88,8 +91,8 @@ foreach($slist as $b) {
 				print("  * Letsencrypt SSL file for '{$dom}'\n");
 				$b->text_key_content = file_get_contents("{$apath}/{$dom}/{$dom}.key");
 				$b->text_crt_content = file_get_contents("{$apath}/{$dom}/{$dom}.cer");
-				$b->text_ca_content = file_get_contents("{$apath}/{$dom}/ca.cer");
-
+				$b->text_ca_content  = file_get_contents("{$apath}/{$dom}/ca.cer");
+				$b->text_ca_content .= "\n" . file_get_contents("{$kloxo_file_path}/letsencryptauthorityx3.pem");
 				$b->setUpdateSubaction();
 
 				$b->write();

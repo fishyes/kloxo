@@ -278,7 +278,7 @@ UrlToolkit {
 UrlToolkit {
 	ToolkitID = cgi_<?=$domcleaner;?>
 
-	Match ^/.*\.(pl|cgi)(/|$) UseFastCGI cgi_apache
+	Match ^/.*\.(pl|cgi|py)(/|$) UseFastCGI cgi_apache
 }
 <?php
 foreach ($protocols as $k => $v) {
@@ -588,7 +588,7 @@ VirtualHost {
 
 	FollowSymlinks = no
 
-	Hostname = webmail.<?=$domainname;?>
+	Hostname = webmail.<?=$domainname;?>, mail.<?=$domainname;?>
 
 
 	WebsiteRoot = <?=$webmaildocroot;?>
@@ -986,7 +986,7 @@ VirtualHost {
 
 	FollowSymlinks = no
 
-	Hostname = webmail.<?=$parkdomainname;?>
+	Hostname = webmail.<?=$parkdomainname;?>, mail.<?=$parkdomainname;?>
 
 
 	WebsiteRoot = <?=$webmaildocroot;?>
@@ -1094,7 +1094,7 @@ VirtualHost {
 
 	FollowSymlinks = no
 
-	Hostname = webmail.<?=$redirdomainname;?>
+	Hostname = webmail.<?=$redirdomainname;?>, mail.<?=$redirdomainname;?>
 
 
 	WebsiteRoot = <?=$webmaildocroot;?>

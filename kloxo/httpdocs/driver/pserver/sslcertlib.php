@@ -31,7 +31,7 @@ class SslCert extends Lxdb
 	static $__desc_add_type = array("n", "", "ssl_add_type", URL_SHOW);
 	static $__desc_parent_domain = array("n", "", "parent_domain", URL_SHOW);
 	static $__desc_syncserver = array("", "", "");
-	static $__desc_slave_id = array("", "", "slave_ID (master_is_localhost)");
+	static $__desc_slave_id = array("", "", "slave_ID");
 	static $__desc_text_csr_content = array("t", "", "CSR");
 	static $__desc_text_key_content = array("t", "", "Key");
 	static $__desc_text_crt_content = array("t", "", "Certificate");
@@ -326,6 +326,24 @@ class SslCert extends Lxdb
 					exec("ln -sf {$spath}/{$dom}.{$v} {$tpath}/program.{$v}");
 				}
 			}
+
+			// MR -- make qmail using the same ssl
+
+			$mpath = "/var/qmail/control";
+
+			if (!is_link("{$mpath}/servercert.pem")) {
+				exec("mv -f {$mpath}/servercert.pem {$mpath}/servercert.pem.old");
+				exec("ln -sf {$tpath}/program.pem {$mpath}/servercert.pem");
+			}
+
+			// MR -- make pure-ftp using the same ssl
+
+			$ppath = "/etc/pki/pure-ftpd";
+
+			if (!is_link("{$ppath}/pure-ftpd.pem")) {
+				exec("mv -f {$ppath}/pure-ftpd.pem {$ppath}/pure-ftpd.pem.old");
+				exec("ln -sf {$tpath}/program.pem {$ppath}/pure-ftpd.pem");
+			}
 		} else {
 			$this->updateSetProgramSSL($param);
 		}
@@ -503,8 +521,10 @@ class SslCert extends Lxdb
 	{
 		global $gbl, $sgbl, $login, $ghtml;
 
+		$d = $parent->nname;
+
 		if ($parent->getClass() === 'web') {
-			$nname = array('M', $parent->nname);
+			$nname = array('M', $d);
 			$action = array("s", array("test", "add", "renew", "revoke"));
 			$keybits = array("s", array("2048", "4096", "ec-256", "ec-384"));
 			$warning = array('W', $login->getKeywordUc('startapi_warning'));
@@ -527,28 +547,28 @@ class SslCert extends Lxdb
 			//	$vlist['ssl_action'] = $action;
 				$vlist['ssl_data_b_s_key_bits_r'] = $keybits;
 
-				$san = "{$parent->nname} www.{$parent->nname} cp.{$parent->nname} stats.{$parent->nname} webmail.{$parent->nname}";
+				$san = "{$d} www.{$d} cp.{$d} stats.{$d} webmail.{$d} mail.{$d}";
 
 				// MR -- include parked domains
 				foreach ((array)$parent->getParentO()->getList('addondomain') as $k => $v) {
 					if ($v->ttype === 'parked') {
-						$san .= " {$k} www.{$k} stats.{$k} cp.{$k} webmail.{$k}";
+						$san .= " {$k} www.{$k} stats.{$k} cp.{$k} webmail.{$k} mail.{$k}";
 					}
 				}
 
 				$vlist["ssl_data_b_s_subjectAltName_r"] = array('t', $san);
-				$vlist["ssl_data_b_s_emailAddress_r"] = array("m", "admin@{$parent->nname}");
+				$vlist["ssl_data_b_s_emailAddress_r"] = array("m", "admin@{$d}");
 			} else if ($typetd['val'] === 'startapi') {
 				$vlist['warning'] = $warning;
 				$vlist['nname'] = $nname;
 			//	$vlist['ssl_action'] = $action;;
 				$vlist['ssl_data_b_s_key_bits_r'] = $keybits;
 				$vlist["ssl_data_b_s_subjectAltName_r"] =
-					array('t', "{$parent->nname} www.{$parent->nname} cp.{$parent->nname} stats.{$parent->nname} webmail.{$parent->nname}");
+					array('t', "{$d} www.{$d} cp.{$d} stats.{$d} webmail.{$d} mail.{$d}");
 			} else if ($typetd['val'] === 'link') {
 				$vlist['nname'] = $nname;
 
-				$ssllist = self::getSSLParentList($parent->nname);
+				$ssllist = self::getSSLParentList($d);
 
 				if ($ssllist[0] !== null) {
 					$vlist['parent_domain'] = array("s", $ssllist);
@@ -559,7 +579,7 @@ class SslCert extends Lxdb
 			$cname = null;
 			$saname = null;
 			$email = null;
-			$vlist['username'] = array("h", $parent->nname);
+			$vlist['username'] = array("h", $d);
 
 			$vlist['nname'] = $nname;
 
@@ -609,7 +629,7 @@ class SslCert extends Lxdb
 				if ($x !== $nname) {
 					$ssllist[] = $x;
 				} else {
-					$ssllist[] = null;
+					continue;
 				}
 			}
 		}

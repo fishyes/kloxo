@@ -53,7 +53,7 @@ $statsprotect = ($stats['protect']) ? true : false;
 
 $tmpdom = str_replace(".", "\.", $domainname);
 
-$excludedomains = array("cp", "webmail");
+$excludedomains = array("cp", "webmail", "mail");
 
 $excludealias = implode("|", $excludedomains);
 
@@ -268,7 +268,7 @@ if ($webmailremote) {
 ?>
 
 ## webmail for '<?=$domainname;?>'
-$HTTP["host"] =~ "^webmail\.<?=str_replace(".", "\.", $domainname);?>" {
+$HTTP["host"] =~ "^webmail\.<?=str_replace(".", "\.", $domainname);?>|^mail\.<?=str_replace(".", "\.", $domainname);?>" {
 
 	url.redirect = ( "/" =>  "http://<?=$webmailremote;?>/" )
 
@@ -279,7 +279,7 @@ $HTTP["host"] =~ "^webmail\.<?=str_replace(".", "\.", $domainname);?>" {
 ?>
 
 ## webmail for '<?=$domainname;?>'
-$HTTP["host"] =~ "^webmail\.<?=str_replace(".", "\.", $domainname);?>" {
+$HTTP["host"] =~ "^webmail\.<?=str_replace(".", "\.", $domainname);?>|^mail\.<?=str_replace(".", "\.", $domainname);?>" {
 
 	server.follow-symlink = "disable"
 
@@ -397,7 +397,7 @@ if ($parkdomains) {
 ?>
 
 ## webmail for parked '<?=$parkdomainname;?>'
-$HTTP["host"] =~ "^webmail\.<?=str_replace(".", "\.", $parkdomainname);?>" {
+$HTTP["host"] =~ "^webmail\.<?=str_replace(".", "\.", $parkdomainname);?>|^mail\.<?=str_replace(".", "\.", $parkdomainname);?>" {
 
 	server.follow-symlink = "disable"
 
@@ -412,7 +412,7 @@ $HTTP["host"] =~ "^webmail\.<?=str_replace(".", "\.", $parkdomainname);?>" {
 ?>
 
 ## webmail for parked '<?=$parkdomainname;?>'
-$HTTP["host"] =~ "^webmail\.<?=str_replace(".", "\.", $parkdomainname);?>" {
+$HTTP["host"] =~ "^webmail\.<?=str_replace(".", "\.", $parkdomainname);?>|^mail\.<?=str_replace(".", "\.", $parkdomainname);?>" {
 
 	server.follow-symlink = "disable"
 
@@ -455,7 +455,7 @@ if ($domainredirect) {
 ?>
 
 ## webmail for redirect '<?=$redirdomainname;?>'
-$HTTP["host"] =~ "^webmail\.<?=str_replace(".", "\.", $redirdomainname);?>" {
+$HTTP["host"] =~ "^webmail\.<?=str_replace(".", "\.", $redirdomainname);?>|^mail\.<?=str_replace(".", "\.", $redirdomainname);?>" {
 
 	server.follow-symlink = "disable"
 
@@ -469,7 +469,7 @@ $HTTP["host"] =~ "^webmail\.<?=str_replace(".", "\.", $redirdomainname);?>" {
 ?>
 
 ## webmail for redirect '<?=$redirdomainname;?>'
-$HTTP["host"] =~ "^webmail\.<?=str_replace(".", "\.", $redirdomainname);?>" {
+$HTTP["host"] =~ "^webmail\.<?=str_replace(".", "\.", $redirdomainname);?>|^mail\.<?=str_replace(".", "\.", $redirdomainname);?>" {
 
 	server.follow-symlink = "disable"
 
@@ -673,7 +673,7 @@ if ($redirectionremote) {
 
 	$HTTP["url"] =~ "^/cgi-bin" {
 		#cgi.assign = ( "" => "/home/httpd/" + var.domain + "/perlsuexec.sh" )
-		cgi.assign = ( "" => "/usr/bin/perl" )
+		cgi.assign = ( ".pl" => "/usr/bin/perl", ".py" => "/usr/bin/python", ".cgi" => "" )
 	}
 <?php
 	}
@@ -693,7 +693,7 @@ if ($redirectionremote) {
 	if ($enablecgi) {
 ?>
 		#cgi.assign = ( ".pl" => "/home/httpd/" + var.domain + "/perlsuexec.sh" )
-		cgi.assign = ( ".pl" => "/usr/bin/perl" )
+		cgi.assign = ( ".pl" => "/usr/bin/perl", ".py" => "/usr/bin/python", ".cgi" => "" )
 <?php
 	}
 

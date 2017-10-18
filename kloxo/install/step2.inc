@@ -445,7 +445,7 @@ lxins_main() {
 	## MR -- to make sure /tmp ready for all; found mysql not able to start if not 1777
 	chmod 1777 /tmp
 
-	sh /script/fix-sysctl
+	sh /script/set-limits
 
 	install_yum_repo
 
@@ -455,7 +455,7 @@ lxins_main() {
 	fi
 
 	if [ "${kloxostate}" != 'none' ] ; then
-		MR -- Create temporary flags for install
+		## MR -- Create temporary flags for install
 		mkdir -p /var/cache/kloxo
 
 		for (( x=0; x<1000; x++ )) ; do

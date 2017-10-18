@@ -1,7 +1,12 @@
 <?php
 	ini_set("display_errors","1");
 
-	session_start();
+	try {
+		session_start();
+	} catch(Exception $e) {
+		exec("'rm' -f /usr/local/lxlabs/kloxo/session/*");
+		session_start();
+	}
 
 	if (file_exists("./custom-index.php")) {
 		include_once "./custom-index.php";
@@ -50,9 +55,9 @@
 			$title = "Kloxo-MR Page";
 		}
 
-		$bckgrnd = "\tbackground-image: url(./images/abstract.jpg);";
-
 		if (basename(getcwd()) === 'login') {
+
+			$selimg = './images/abstract.jpg';
 
 			$path = "../theme/background";
 
@@ -74,15 +79,21 @@
 						} else {
 							$selimg = $dirs[$selnum];
 						}
-
-						$bckgrnd = "\tbackground-image: url({$selimg});\n".
-							"\tbackground-size: cover;\n".
-							"\tbackground-attachment: fixed;";
 					}
-				} catch (Exception $e) {
-					$bckgrnd = $bckgrnd;
+				} catch (Exception $e) { }
+			} else {
+				$c = trim(file_get_contents("./.norandomimage"));
+					
+				if ($c !== '') {
+					$selimg = "{$path}/{$c}";
 				}
 			}
+
+			$bckgrnd = "\tbackground-image: url({$selimg});\n".
+				"\tbackground-size: cover;\n".
+				"\tbackground-attachment: fixed;";
+		} else {
+			$bckgrnd = "\tbackground-image: url(./images/abstract.jpg);";
 		}
 ?>
 	<title><?= $title; ?></title>

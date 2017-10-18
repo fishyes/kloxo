@@ -50,6 +50,8 @@ class portconfig_b extends lxaclass
 	static $__desc_redirecttodomain = array("", "", "redirect_to_domain");
 
 	static $__desc_kloxowrapper = array("", "", "kloxo_wrapper");
+	static $__desc_randomimage_flag = array("f", "", "login_randomimage");
+	static $__desc_chooseimage = array("", "", "login_chooseimage");
 }
 
 class kloxoconfig_b extends lxaclass
@@ -253,11 +255,12 @@ class General extends Lxdb
 		if (isOn($param['selfbackupparam_b-selfbackupflag'])) {
 			$fn = lxftp_connect($param['selfbackupparam_b-ftp_server']);
 			$mylogin = ftp_login($fn, $param['selfbackupparam_b-rm_username'], $param['selfbackupparam_b-rm_password']);
-
 			if (!$mylogin) {
 				$p = error_get_last();
 				throw new lxException($login->getThrow('could_not_connect_to_ftp_server'), '', $p);
 			}
+
+			ftp_pasv($fn, true);
 		}
 		return $param;
 	}
@@ -270,6 +273,9 @@ class General extends Lxdb
 		$nonsslport = $this->portconfig_b->nonsslport = $param['portconfig_b-nonsslport'];
 		$redirect_to_domain = $this->portconfig_b->redirecttodomain = $param['portconfig_b-redirecttodomain'];
 		$redirect_to_ssl = $this->portconfig_b->redirectnonssl_flag = $param['portconfig_b-redirectnonssl_flag'];
+
+		$randomimage_flag = $this->portconfig_b->randomimage_flag = $param['portconfig_b-randomimage_flag'];
+		$chooseimage = $this->portconfig_b->chooseimage = $param['portconfig_b-chooseimage'];
 
 		$kloxowrapper = $this->portconfig_b->kloxowrapper = $param['portconfig_b-kloxowrapper'];
 
@@ -290,6 +296,18 @@ class General extends Lxdb
 			exec("echo '$redirect_to_domain' > {$loginpath}/redirect-to-domain");
 		} else {
 			exec("rm -f {$loginpath}/redirect-to-domain");
+		}
+
+		if ($randomimage_flag === 'off') {
+			if (trim($chooseimage) !== '') {
+				$c = trim($chooseimage);
+			} else {
+				$c = '';
+			}
+
+			exec("echo '{$c}' > {$loginpath}/.norandomimage");
+		} else {
+			exec("'rm' -f {$loginpath}/.norandomimage");
 		}
 
 		return $param;
@@ -423,6 +441,23 @@ class General extends Lxdb
 
 				$vlist['portconfig_b-kloxowrapper'] = array('s', array('kloxo.exe', 'lxphp.exe'));
 
+				$vlist['portconfig_b-randomimage_flag'] = null;
+			//	$vlist['portconfig_b-chooseimage'] = array('L', '/');
+				$vlist['portconfig_b-chooseimage'] = array('s', lscandir_without_dot(getreal("/theme/background")));
+
+				if (file_exists("./login/.norandomimage")) {
+					$this->portconfig_b->setDefaultValue('randomimage_flag', 'off');
+
+					$c = trim(file_get_contents("./login/.norandomimage"));
+					
+					if ($c !== '') {
+						$this->portconfig_b->setDefaultValue('chooseimage', $c);
+					}
+				} else {
+					$this->portconfig_b->setDefaultValue('randomimage_flag', 'on');
+					$this->portconfig_b->setDefaultValue('chooseimage', '');
+				}
+
 				break;
 
 			case "download_config":
@@ -532,7 +567,8 @@ class General extends Lxdb
 				$vlist['selfbackupparam_b-ftp_server'] = null;
 				$vlist['selfbackupparam_b-rm_directory'] = null;
 				$vlist['selfbackupparam_b-rm_username'] = null;
-				$vlist['selfbackupparam_b-rm_password'] = array('m', '***');
+			//	$vlist['selfbackupparam_b-rm_password'] = array('m', '***');
+				$vlist['selfbackupparam_b-rm_password'] = null;
 			//	$vlist['selfbackupparam_b-rm_last_number'] = null;
 
 				break;

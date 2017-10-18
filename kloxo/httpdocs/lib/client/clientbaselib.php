@@ -24,7 +24,7 @@ class ClientBase extends ClientCore
 
 	static $__desc_skeleton = array("", "", "skeleton");
 	static $__desc_skeletonarchive = array("", "", "current_skeleton");
-	static $__desc_skeletonarchive_f = array("F", "", "upload_archive_of_skeleton_(zip_file)");
+	static $__desc_skeletonarchive_f = array("F", "", "upload_archive_of_skeleton");
 
 	static $__desc___v_priv_used_client_num = array("S", "", "clients");
 	static $__desc___v_priv_used_traffic_usage = array("S", "", "traffic");
@@ -428,9 +428,9 @@ class ClientBase extends ClientCore
 
 		$alist['__title_amisc'] = $login->getKeywordUc('misc');
 
-		if (!$this->isLogin()) {
+	//	if (!$this->isLogin()) {
 			$alist['__v_dialog_disa'] = "a=updateform&sa=disable_per";
-		}
+	//	}
 
 		if ($login->priv->isOn('logo_manage_flag') && $this->isLogin()) {
 			$alist['__v_dialog_uplo'] = "o=sp_specialplay&a=updateform&sa=upload_logo";
@@ -983,7 +983,7 @@ class ClientBase extends ClientCore
 		$param['used_s_client_num'] = '-';
 
 		$param['realpass'] = $param['password'];
-		$param['password'] = crypt($param['password']);
+		$param['password'] = crypt($param['password'], '$1$'.randomString(8).'$');
 
 		return $param;
 	}

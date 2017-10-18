@@ -94,7 +94,8 @@ class Servermail__Qmail  extends lxDriverClass
 			lfile_put_contents("/var/qmail/control/smtproutes", $this->main->smtp_relay);
 		}
 
-		if ($this->main->isOn('virus_scan_flag')) {
+	//	if ($this->main->isOn('virus_scan_flag')) {
+		if ($this->main->virus_scan_flag == 'on') {
 			$ret = lxshell_return("rpm", "-q", "simscan-toaster");
 
 			if ($ret) {
@@ -107,26 +108,59 @@ class Servermail__Qmail  extends lxDriverClass
 
 			// MR -- clamav from epel use clamd instead clamav init
 			if (isServiceExists("freshclam")) {
-				exec("chkconfig freshclam on >/dev/null 2>&1");
-				os_service_manage("freshclam", "restart");
+			//	exec("chkconfig freshclam on >/dev/null 2>&1");
+			//	os_service_manage("freshclam", "restart");
+				exec("sh /script/enable-service freshclam");
 			}
 	
+			// MR -- clamav from epel use clamd instead clamav init
+			if (isServiceExists("clamd")) {
+				exec("sh /script/disable-service clamd");
+			}
+
 			lxfile_cp("../file/linux/simcontrol", "/var/qmail/control/");
 			lxshell_return("/var/qmail/bin/simscanmk");
 			lxshell_return("/var/qmail/bin/simscanmk", "-g");
+
+			$cpath = "/var/qmail/supervise/clamd";
+
+			lxfile_mv("{$cpath}/down", "{$cpath}/run");
+			lxfile_mv("{$cpath}/log/down", "{$cpath}/log/run");
+
+			createRestartFile("restart-mail");
+
+			// MR -- clamav for ftp upload file
+			exec("sh /script/pure-ftpd-with-clamav");
 		} else {
-			if (isServiceExists("freshclam")) {
+		//	if (isServiceExists("freshclam")) {
 				exec("chkconfig freshclam off >/dev/null 2>&1");
 				os_service_manage("freshclam", "stop");
+				exec("chkconfig clamd off >/dev/null 2>&1");
+				os_service_manage("clamd", "stop");
 
-				// MR -- don't need uninstall because possible used by other purpose
 			//	lxshell_return("rpm", "-e", "--nodeps", "clamav");
 			//	lxshell_return("rpm", "-e", "--nodeps", "clamd");
-			}
+				lxshell_return("yum", "remove", "-y", "clamav", "clamd");
+				lxshell_return("yum", "remove", "-y", "simscan-toaster");
+
+				$cpath = "/var/qmail/supervise/clamd";
+
+				lxfile_mv("{$cpath}/run", "{$cpath}/down");
+				lxfile_mv("{$cpath}/log/run", "{$cpath}/log/down");
+
+				// MR -- clamav for ftp upload file
+				exec("sh /script/pure-ftpd-without-clamav");
+		//	}
 		}
 
-		if ($this->main->max_size) {
+		if (isset($this->main->max_size)) {
 			lfile_put_contents("/var/qmail/control/databytes", $this->main->max_size);
+		}
+
+		if (isset($this->main->send_limit)) {
+			$slbin = "/var/qmail/bin/sendlimiter";
+			lfile_put_contents("/var/qmail/control/sendlimit", $this->main->send_limit);
+			exec("'cp' -f ../file/qmail/var/qmail/bin/sendlimiter {$slbin}; chown root:qmail {$slbin}; chmod 755 {$slbin}; sh {$slbin}");
 		}
 	}
 

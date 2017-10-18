@@ -369,7 +369,7 @@ function createHtpasswordFile($object, $sdir, $list)
 	$fstr = null;
 
 	foreach ($list as $k => $p) {
-		$cr = crypt($p);
+		$cr = crypt($p, '$1$'.randomString(8).'$');
 		$fstr .= "$k:$cr\n";
 	}
 
@@ -481,6 +481,17 @@ function slave_get_driver($class)
 	$rmt = lfile_get_unserialize("../etc/slavedb/driver");
 
 	return $rmt->data[$class];
+}
+
+function slave_get_db_contactemail()
+{
+//	global $login;
+
+//	$rmt = rl_exec_get('localhost', $login->syncserver, 'lfile_get_unserialize', array('../etc/slavedb/contactemail'));
+
+	$rmt = lfile_get_unserialize("../etc/slavedb/contactemail");
+
+	return $rmt->data['admin']['contactemail'];
 }
 
 function PreparePowerdnsDb($nolog = null)
@@ -804,7 +815,7 @@ function validate_hostname_name($name, $bypass = null)
 {
 	global $login;
 
-	if (!preg_match('/^([0-9a-z_]{1,1}[0-9a-z_\-\.]{0,126}[0-9a-z]{0,1})$/i', $name) && $name != "__base__") {
+	if (!preg_match('/^([0-9a-z_]{1,1}[0-9a-z\_\-\.]{0,126}[0-9a-z]{0,1})$/i', $name) && $name != "__base__") {
 		throw new lxException($login->getThrow('invalid_subdomain'), '', $name);
 	}
 
@@ -818,7 +829,7 @@ function validate_server_alias($name, $bypass = null)
 	global $login;
 
 	// MR -- enough * for all subdomain!
-	if (!preg_match('/^([0-9a-z_]{1,1}[0-9a-z_\-\.]{0,126}[0-9a-z]{0,1})$/i', $name) && $name != "*") {
+	if (!preg_match('/^([0-9a-z_]{1,1}[0-9a-z\_\-\.]{0,126}[0-9a-z]{0,1})$/i', $name) && $name != "*") {
 		throw new lxException($login->getThrow('invalid_subdomain'), '', $name);
 	}
 
@@ -841,7 +852,7 @@ function validate_database_name($name)
 {
 	global $login;
 
-	if (!preg_match('/^([a-z0-9_]){1,63}([a-z0-9]){1,1}$/', $name)) {
+	if (!preg_match('/^([a-z0-9\_]){1,63}([a-z0-9]){1,1}$/', $name)) {
 		throw new lxException($login->getThrow('invalid_database_name'), '', $name);
 	}
 }
@@ -850,7 +861,7 @@ function validate_password($name)
 {
 	global $login;
 
-	if (!preg_match('/^([a-zA-Z0-9]){8,64}$/', $name)) {
+	if (!preg_match('/^([a-zA-Z0-9\!\@\#\$\%\&\*\?\_\-\.]){8,64}$/', $name)) {
 		throw new lxException($login->getThrow('invalid_password'), '', $name);
 	}
 }

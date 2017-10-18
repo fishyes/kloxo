@@ -25,7 +25,7 @@ class lxbackup extends Lxdb
 	static $__desc_temp_f = array("", "", "");
 	static $__desc_upload_to_ftp = array("f", "", "upload_files_to_remote_server_");
 	static $__desc_no_local_copy_flag = array("f", "", "dont_keep_a_local_copy");
-	static $__desc_backupextra_stopvpsflag = array('f', "", "stop_vps_while_backup_snapshot_(recommended)", "");
+	static $__desc_backupextra_stopvpsflag = array('f', "", "stop_vps_while_backup_snapshot", "");
 
 	static $__acdesc_update_backup = array("", "", "backup_now");
 	static $__acdesc_update_restore = array("", "", "restore");
@@ -206,7 +206,8 @@ class lxbackup extends Lxdb
 				if (trim($this->ftp_server)) {
 					$vlist['ftp_server'] = array('M', null);
 					$vlist['rm_username'] = array('M', null);
-					$vlist['rm_password'] = array('M', '***');
+				//	$vlist['rm_password'] = array('M', '***');
+					$vlist['rm_password'] = null;
 					$vlist['upload_to_ftp'] = array('M', null);
 				} else {
 					$vlist['upload_to_ftp'] = array('M', "Ftp Server Not Set");
@@ -316,7 +317,8 @@ class lxbackup extends Lxdb
 				$vlist['ftp_server'] = null;
 			//	$vlist['ssh_server'] = null;
 				$vlist['rm_username'] = null;
-				$vlist['rm_password'] = array('m', get_star_password());
+			//	$vlist['rm_password'] = array('m', get_star_password());
+				$vlist['rm_password'] = null;
 				$vlist['rm_directory'] = null;
 				$vlist['upload_to_ftp'] = null;
 				$vlist['upload_type'] = array('M', 'ftp');
@@ -340,7 +342,8 @@ class lxbackup extends Lxdb
 			*/
 				$vlist['ftp_server'] = array('M', null);
 				$vlist['rm_username'] = array('M', null);
-				$vlist['rm_password'] = array('M', "****");
+			//	$vlist['rm_password'] = array('M', "****");
+				$vlist['rm_password'] = null;
 				$vlist['restorestage'] = array('M', null);
 				$vlist['backup_ftp_file_f'] = null;
 				$vlist['__v_next'] = 'restore_confirm';
@@ -815,6 +818,7 @@ class lxbackup extends Lxdb
 	function download_from_server($file, $localfile)
 	{
 		global $login;
+
 
 		$fn = lxftp_connect($this->ftp_server);
 		$mylogin = ftp_login($fn, $this->rm_username, $this->rm_password);

@@ -7,10 +7,6 @@
 	$total = (int)shell_exec("free -m | grep Mem: | awk '{print $2}'");
 	$spare = ($spare) ? $spare : ($total * 0.25);
 
-//	$comtype = shell_exec("command -v systemctl");
-
-
-//	if (count($comtype) > 0) {
 	if (getServiceType() === 'systemd') {
 		$apps  = (int)shell_exec("free -m | grep 'Mem:' | awk '{print $7}'");
 	} else {
@@ -49,13 +45,14 @@
 	if ($minpar_p < 2) { $minpar_p = 2; }
 	if ($maxpar_w < 4) { $maxpar_w = 4; }
 	if ($minpar_w < 2) { $minpar_w = 2; }
-
+/*
 	if (!isset($keepalive)) {
-		$keepalive = 'Off';
+		$keepalive = 'off';
 	} else {
-		$keepalive = 'On';
+		$keepalive = 'on';
 	}
-	
+*/	
+	// MR -- default is 25
 	$mcfactor = 25;
 ?>
 
@@ -118,6 +115,7 @@ KeepAliveTimeout 15
     MaxSpareThreads <?php echo $maxpar_w; ?>
 
     ThreadsPerChild <?php echo $mcfactor; ?>
+
     ServerLimit <?php echo $maxpar_w; ?>
 
     <IfVersion >= 2.4>

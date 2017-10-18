@@ -107,9 +107,10 @@ if [ -f ${main_path}/version ] ; then
 			yum install rpmdevtools -y
 		fi
 
-		out=$(rpmdev-vercmp ${pack_verrel} ${cver})
+		rpmdev-vercmp ${cver} ${pack_verrel} >/dev/null 2>&1
+		status="$?"
 
-		if [[ $out != *${pack_verrel}* ]] ; then
+		if [ "${status}" == "12" ] ; then
 			x="- '${pack_name}-${pack_verrel}' ready to installed/updated"
 			echo $x
 			echo $x >>${main_path}/${base_name}_install.log
@@ -139,7 +140,7 @@ x="-- Check dependencies rpms"
 echo $x
 echo $x >>${main_path}/${base_name}_install.log
 
-repoquery --qf='%{name}' --requires --resolve ${pack_name}-*|egrep -iv '(php|mysql|postgresql|mariadb|httpd|openssl|nginx|tengine)(.*)'|sort -u > ${main_path}/dependencies
+repoquery --qf='%{name}' --requires --resolve ${pack_name}-*|egrep -iv '(php|mysql|postgresql|mariadb|httpd|openssl|nginx|tengine|pear1u)(.*)'|sort -u > ${main_path}/dependencies
 
 if [ "$(yum list|grep libmemcached10)" != "" ] ; then
 	libm1=$(yum info libmemcached10${v}|grep Version|awk '{print $3}')
@@ -150,7 +151,14 @@ fi
 libm2=$(yum info libmemcached${v}|grep Version|awk '{print $3}')
 
 if [[ $libm1 < $libm2 ]] ; then
+	if [ "$(rpm -qa libmemcached10)" != "" ] ; then
+		yum replace libmemcached10 --replace-with=libmemcached -y >/dev/null 2>&1
+	fi
 	sed -i 's/libmemcached10/libmemcached/g' ${main_path}/dependencies ${main_path}/dependencies
+else
+	if [ "$(rpm -qa libmemcached)" != "" ] ; then
+		yum replace libmemcached --replace-with=libmemcached10 -y >/dev/null 2>&1
+	fi
 fi
 
 x="-- Install dependencies rpms"

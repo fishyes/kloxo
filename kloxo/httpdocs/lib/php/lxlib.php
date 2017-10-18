@@ -3034,7 +3034,7 @@ function add_superadmin($pass)
 
 	$ddb = new Sqlite(null, "superclient");
 	if (!$ddb->existInTable("nname", 'superclient')) {
-		$res['password'] = crypt($pass);
+		$res['password'] = crypt($pass, '$1$'.randomString(8).'$');
 		$res['cttype'] = 'superadmin';
 		$res['cpstatus'] = 'on';
 		if (if_demo()) {
@@ -3075,9 +3075,10 @@ function init_supernode($pass)
 function init_slave($pass)
 {
 	global $gbl, $sgbl, $login, $ghtml;
+
 	$rm = new Remote();
-	$rm->password = crypt($pass);
-	lfile_put_contents('__path_slave_db', serialize($rm));
+	$rm->password = crypt($pass, '$1$'.randomString(8).'$');
+	lfile_put_contents($sgbl->__path_slave_db, serialize($rm));
 }
 
 function lx_socket_read($socket)
@@ -3348,7 +3349,7 @@ function update_database()
 
 	$dbpath = '../file/sql';
 
-	exec("mysql -f -u root $pstring < {$dbpath}/db-structure-update.sql");
+	exec("mysql -f -u root $pstring < {$dbpath}/db-structure-update.sql &");
 }
 
 function get_default_fields()

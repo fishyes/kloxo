@@ -63,6 +63,12 @@ class serverweb__ extends lxDriverClass
 
 				break;
 
+			case "enable_php52m_fpm":
+
+				$this->set_php52m_fpm();
+
+				break;
+
 			case "pagespeed_clear_cache":
 				$this->set_pagespeed_clear_cache();
 
@@ -76,24 +82,35 @@ class serverweb__ extends lxDriverClass
 
 		switch ($this->main->apache_optimize) {
 			case 'default':
-				lxshell_return("sh", $scripting, "--select=default", '--nolog');
+				$s = "--select=default";
 
 				break;
 			case 'low':
-				lxshell_return("sh", $scripting, "--select=low", '--nolog');
+				$s = "--select=low";
 
 				break;
 			case 'medium':
-				lxshell_return("sh", $scripting, "--select=medium", '--nolog');
+				$s = "--select=medium";
 
 				break;
 			case 'high':
-				lxshell_return("sh", $scripting, "--select=high", '--nolog');
+				$s = "--select=high";
 
 				break;
 		}
 
-	//	exec("sed -i 's:__optimize__:{$this->main->apache_optimize}:' /etc/httpd/conf.d/~lxcenter.conf");
+		switch ($this->main->enable_keepalive) {
+			case 'off':
+				$k = "--keepalive=off";
+
+				break;
+			case 'on':
+				$k = "--keepalive=on";
+
+				break;
+		}
+
+		lxshell_return("sh", $scripting, $s, $k, '--nolog');
 	}
 
 	function set_fix_chownchmod()
@@ -571,6 +588,21 @@ class serverweb__ extends lxDriverClass
 			@touch('../etc/flag/enablemultiplephp.flg');
 		} else {
 			@unlink('../etc/flag/enablemultiplephp.flg');
+		}
+
+		exec("sh /script/enable-php-fpm; sh /script/add-start-queue restart-php-fpm");
+	}
+
+	function set_php52m_fpm()
+	{
+		global $login;
+
+		$e = $this->main->enable_php52m_fpm;
+
+		if ($e === 'on') {
+			@touch('../etc/flag/enable_php52m-fpm.flg');
+		} else {
+			@unlink('../etc/flag/enable_php52m-fpm.flg');
 		}
 
 		exec("sh /script/enable-php-fpm; sh /script/add-start-queue restart-php-fpm");

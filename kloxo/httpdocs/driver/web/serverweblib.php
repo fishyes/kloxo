@@ -11,6 +11,7 @@ class serverweb extends lxdb
 	static $__acdesc_show = array("", "", "webserver_config");
 
 	static $__desc_apache_optimize = array("", "", "apache_optimize");
+	static $__desc_enable_keepalive = array("f", "", "enable_keepalive");
 
 	static $__desc_mysql_convert = array("", "", "mysql_convert");
 	static $__desc_mysql_charset = array("", "", "mysql_charset");
@@ -29,6 +30,8 @@ class serverweb extends lxdb
 
 	static $__desc_pagespeed_cache = array("", "", "pagespeed_cache");
 
+	static $__desc_enable_php52m_fpm = array("", "", "enable_php52m_fpm");
+
 	function createShowUpdateform()
 	{
 		global $login;
@@ -43,6 +46,16 @@ class serverweb extends lxdb
 			$uflist['multiple_php_activate'] = null;
 			$uflist['multiple_php_install'] = null;
 			$uflist['multiple_php_remove'] = null;
+
+			$a = getListOnList('php');
+
+			foreach ($a as $k => $v) {
+				if (strpos($v, 'php52') !== false) {
+					$uflist['enable_php52m_fpm'] = null;
+
+					break;
+				}
+			}
 
 			if (isWebProxyOrApache()) {
 				$uflist['php_type'] = null;
@@ -75,7 +88,8 @@ class serverweb extends lxdb
 			case "apache_optimize":
 				$this->apache_optimize = null;
 
-				exec("cat /etc/httpd/conf.d/~lxcenter.conf | grep '### selected:'", $out);
+				$out = null;
+				exec("cat /etc/httpd/conf.d/~lxcenter.conf | grep -i '### selected:'", $out);
 
 				if (count($out) > 0) {
 					if (strpos($out[0], 'customize') !== false) {
@@ -90,7 +104,7 @@ class serverweb extends lxdb
 				$vlist['apache_optimize'] = array('s', $a);
 
 				$b = '';
-				
+
 				if (count($out) > 0) {
 					foreach ($a as $k => $v) {
 						if (strpos($out[0], $v) !== false) {
@@ -104,12 +118,27 @@ class serverweb extends lxdb
 				if ($b !== '') {
 					$this->setDefaultValue('apache_optimize', $b);
 				}
-	
+
+				$this->enable_keepalive = null;
+
+				$vlist['enable_keepalive'] = null;
+
+				$out = null;
+				exec("cat /etc/httpd/conf.d/~lxcenter.conf | grep -i ^'keepalive on'", $out);
+
+				if (count($out) > 0) {
+					$s = 'on';
+				} else {
+					$s = 'off';
+				}
+
+				$this->setDefaultValue('enable_keepalive', $s);
+
 				break;
 			case "mysql_convert":
 				$this->mysql_convert = null;
 				$this->mysql_charset = null;
-				
+
 				// TODO: "SELECT ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'kloxo';"
 				// mysql -u[user] -p -D[database] -e "show table status\G"| egrep "(Index|Data)_length" | awk 'BEGIN { rsum = 0 } { rsum += $2 } END { print rsum }'
 
@@ -118,7 +147,7 @@ class serverweb extends lxdb
 				} else {
 					$vlist['mysql_convert'] = array('s', array('to-myisam', 'to-innodb'));
 				}
-				
+	
 				$vlist['mysql_charset'] = array('s', array( 'utf8'));
 
 				break;
@@ -254,6 +283,18 @@ class serverweb extends lxdb
 				$this->setDefaultValue('php_used', $j);
 
 				$vlist['php_used'] = array('s', $d);
+
+				break;
+
+			case "enable_php52m_fpm":
+
+				$this->enable_php52m_fpm = null;
+
+				$vlist['enable_php52m_fpm'] = array("f", array('on', 'off'));
+
+				if (file_exists("../etc/flag/enable_php52m-fpm.flg")) {
+					$this->setDefaultValue('enable_php52m_fpm', 'on');
+				}
 
 				break;
 

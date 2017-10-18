@@ -174,7 +174,12 @@ class pserver__Linux extends lxDriverClass
 
 		// This is a hack to show the actual non-kloxo memory on openvz.
 		if ($sgbl->isKloxo()) {
-			if (lxfile_exists("/proc/user_beancounters")) {
+		//	if (lxfile_exists("/proc/user_beancounters")) {
+		//	if ((!lxfile_exists("/boot/grub/grub.conf")) && (!lxfile_exists("/boot/grub2/grub.conf"))) {
+		//	exec("grep envID /proc/self/status", $out);
+			exec("sh /script/virtual-info -t", $out);
+
+			if ($out[0] == 'container') {
 				$ret['used_s_memory'] -= 20;
 			}
 		}
